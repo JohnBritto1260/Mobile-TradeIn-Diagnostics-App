@@ -1,0 +1,8 @@
+{
+  "rules": {
+    "analytics": {
+      ".read": "true",
+      ".write": "true"
+    }
+  }
+}
