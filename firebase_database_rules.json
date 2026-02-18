@@ -1,8 +1,129 @@
 {
   "rules": {
-    "analytics": {
-      ".read": "true",
-      ".write": "true"
+    "test": {
+  			".read": "true",
+  			".write": "true"
+		},
+    // =====================================================
+    // USERS COLLECTION - User profiles and authentication data
+    // =====================================================
+    "users": {
+      "$userId": {
+        // Single combined read rule
+        ".read": "$userId === auth.uid || root.child('users').child(auth.uid).child('role').val() === 'admin'",
+        
+        // Single combined write rule
+        ".write": "$userId === auth.uid || root.child('users').child(auth.uid).child('role').val() === 'admin'",
+        
+        // Public profile information
+        "profile": {
+          ".read": "auth != null",
+          ".write": "$userId === auth.uid"
+        },
+        
+        // Private user data
+        "private": {
+          ".read": "$userId === auth.uid || root.child('users').child(auth.uid).child('role').val() === 'admin'",
+          ".write": "$userId === auth.uid"
+        },
+        
+        // User role and permissions
+        "role": {
+          ".read": "auth != null",
+          ".write": "root.child('users').child(auth.uid).child('role').val() === 'admin'"
+        }
+      }
+    },
+    
+    // =====================================================
+    // DIAGNOSTIC SESSIONS - Core data for both apps
+    // =====================================================
+    "diagnostic_sessions": {
+      // Allow ML API to list/query sessions for duplicate detection
+      ".read": "auth.token.email === 'ml-api@tradein-details.iam.gserviceaccount.com'",
+      
+      "$sessionId": {
+        // Single combined read rule for users, admin, and ML API
+        ".read": "data.child('userId').val() === auth.uid || root.child('users').child(auth.uid).child('role').val() === 'admin' || auth.token.email === 'ml-api@tradein-details.iam.gserviceaccount.com'",
+        
+        // Single combined write rule for users, admin, and ML API
+        ".write": "newData.child('userId').val() === auth.uid || data.child('userId').val() === auth.uid || root.child('users').child(auth.uid).child('role').val() === 'admin' || auth.token.email === 'ml-api@tradein-details.iam.gserviceaccount.com'",
+        
+        // Device images metadata (external validation from web app)
+        "deviceImages": {
+          "$side": {
+            ".read": "data.parent().child('userId').val() === auth.uid || root.child('users').child(auth.uid).child('role').val() === 'admin'",
+            ".write": "data.parent().child('userId').val() === auth.uid"
+          }
+        },
+        
+        // Internal validation data (from mobile diagnostic app)
+        "internalValidation": {
+          ".read": "data.parent().child('userId').val() === auth.uid || root.child('users').child(auth.uid).child('role').val() === 'admin'",
+          ".write": "data.parent().child('userId').val() === auth.uid"
+        },
+        
+        // External validation results (from web app ML analysis)
+        "externalValidation": {
+          ".read": "data.parent().child('userId').val() === auth.uid || root.child('users').child(auth.uid).child('role').val() === 'admin'",
+          ".write": "auth.token.email === 'ml-api@tradein-details.iam.gserviceaccount.com'"
+        },
+        
+        // Combined fraud analysis results
+        "fraudRiskScore": {
+          ".read": "data.parent().child('userId').val() === auth.uid || root.child('users').child(auth.uid).child('role').val() === 'admin'",
+          ".write": "auth.token.email === 'ml-api@tradein-details.iam.gserviceaccount.com'"
+        }
+      }
+    },
+    
+    // =====================================================
+    // USER HISTORY - Submission history for fraud analysis
+    // =====================================================
+    "user_history": {
+      "$userId": {
+        // Single combined read rule for user, admin, and ML API
+        ".read": "$userId === auth.uid || root.child('users').child(auth.uid).child('role').val() === 'admin' || auth.token.email === 'ml-api@tradein-details.iam.gserviceaccount.com'",
+        
+        // Single combined write rule for user and ML API
+        ".write": "$userId === auth.uid || auth.token.email === 'ml-api@tradein-details.iam.gserviceaccount.com'"
+      }
+    },
+    
+    // =====================================================
+    // DEVICE CATALOG - Device specifications (public read)
+    // =====================================================
+    "device_catalog": {
+      "$deviceId": {
+        ".read": "auth != null",
+        ".write": "auth.token.email === 'ml-api@tradein-details.iam.gserviceaccount.com' || root.child('users').child(auth.uid).child('role').val() === 'admin'"
+      }
+    },
+    
+    // =====================================================
+    // ANALYTICS - System usage statistics
+    // =====================================================
+		"analytics": {
+    ".read": "root.child('users').child(auth.uid).child('role').val() === 'admin'",
+    ".write": "true || auth.token.email === 'ml-api@tradein-details.iam.gserviceaccount.com' || root.child('users').child(auth.uid).child('role').val() === 'admin'"
+    },
+    
+    // =====================================================
+    // BLACKLIST - Fraudulent users and devices
+    // =====================================================
+    "blacklist": {
+      "$entryId": {
+        ".read": "root.child('users').child(auth.uid).child('role').val() === 'admin'",
+        ".write": "auth.token.email === 'ml-api@tradein-details.iam.gserviceaccount.com' || root.child('users').child(auth.uid).child('role').val() === 'admin'"
+      }
+    },
+    
+    // =====================================================
+    // SYSTEM CONFIGURATION - App settings and ML model info
+    // =====================================================
+    "system_config": {
+      ".read": "auth != null",
+      ".write": "root.child('users').child(auth.uid).child('role').val() === 'admin'"
     }
   }
 }
