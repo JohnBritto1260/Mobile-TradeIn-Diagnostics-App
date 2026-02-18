@@ -8,11 +8,11 @@ A comprehensive Flutter-based hardware diagnostic toolkit designed for mobile tr
 
 ## 📱 App Preview
 
-| Main Screen | Micro phone | Test |
+| Main Screen | Microphone | Voice Testing |
 |:---:|:---:|:---:|
 | ![Screen 1](assets/Screen_1.jpg) | ![Screen 2](assets/Screen_2.jpg) | ![Screen 3](assets/Screen_3.jpg) |
 
-| Screen | Sensor Testing | Results Page | Final Report |
+| Touch Screen | Volume Button | Power Button | Final Report |
 |:---:|:---:|:---:|:---:|
 | ![Screen 4](assets/Screen_4.jpg) | ![Screen 5](assets/Screen_5.jpg) | ![Screen 6](assets/Screen_6.jpg) | ![Screen 7](assets/Screen_7.jpg) |
 
